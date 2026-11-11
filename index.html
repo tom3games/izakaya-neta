@@ -107,7 +107,7 @@ input{font-family:inherit;-webkit-user-select:text;user-select:text}
 @keyframes poke{50%{transform:translate(5px,8px) scale(.92)}}
 
 /* 打つところ */
-#bar{position:absolute;left:0;right:0;bottom:0;z-index:50;background:#20140c;border-top:1px solid #4d331f;padding:8px 10px calc(8px + env(safe-area-inset-bottom))}
+#bar{position:absolute;left:0;right:0;bottom:0;z-index:50;background:#20140c;border-top:1px solid #4d331f;padding:8px 10px calc(8px + calc(env(safe-area-inset-bottom) + var(--inapp-bot,0px)))}
 #bar .in{display:flex;gap:8px;max-width:520px;margin:0 auto}
 #neta{flex:1;min-width:0;height:48px;border-radius:10px;border:2px solid #6b4a2e;background:#fbf4e6;color:var(--ink);font-size:16px;padding:0 12px;outline:none}
 #neta:focus{border-color:var(--amber)}
@@ -137,7 +137,7 @@ input{font-family:inherit;-webkit-user-select:text;user-select:text}
 #tName span:nth-child(2){margin-top:min(7vw,4.2svh,40px)}
 #tName.en{flex-direction:column;align-items:center;justify-content:center}
 #tName.en span{writing-mode:horizontal-tb;font-family:var(--brush);font-size:min(12vw,54px);margin:0}
-#tLow{position:absolute;left:0;right:0;bottom:0;top:min(48%,400px);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:12px;padding:16px 16px calc(22px + env(safe-area-inset-bottom))}
+#tLow{position:absolute;left:0;right:0;bottom:0;top:min(48%,400px);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:12px;padding:16px 16px calc(22px + calc(env(safe-area-inset-bottom) + var(--inapp-bot,0px)))}
 #tSub{font-family:var(--hand);font-size:18px;color:#fff3dc;text-shadow:0 1px 3px #000,0 0 12px #000;text-align:center}
 #tBest{font-family:var(--hand);font-size:14px;color:#d9be98;min-height:18px}
 .big{width:min(80vw,300px);min-height:58px;border-radius:8px;background:var(--red);color:#fff3e2;font-weight:800;font-size:20px;letter-spacing:.12em;box-shadow:0 5px 0 var(--red2),0 10px 22px rgba(0,0,0,.45)}
@@ -147,7 +147,7 @@ input{font-family:inherit;-webkit-user-select:text;user-select:text}
 
 /* 今夜の顔ぶれ（箸袋のカード） */
 #vMeet{z-index:12;background:rgba(18,10,6,.86)}
-#vMeet .wrap{display:flex;flex-direction:column;align-items:center;padding:calc(64px + env(safe-area-inset-top)) 14px calc(18px + env(safe-area-inset-bottom));gap:10px}
+#vMeet .wrap{display:flex;flex-direction:column;align-items:center;padding:calc(64px + env(safe-area-inset-top)) 14px calc(18px + calc(env(safe-area-inset-bottom) + var(--inapp-bot,0px)));gap:10px}
 #meetName{font-family:var(--brush);font-size:30px;color:#f6efe0}
 #meetSub{font-family:var(--hand);font-size:14px;color:#d9be98;margin-top:-6px}
 #cards{flex:1;min-height:0;width:100%;display:flex;flex-direction:column;justify-content:center;gap:9px}
@@ -167,7 +167,7 @@ input{font-family:inherit;-webkit-user-select:text;user-select:text}
 
 /* 遊び方 */
 #vHow{z-index:85;background:rgba(14,8,5,.9)}
-#vHow .wrap{display:flex;flex-direction:column;justify-content:center;padding:calc(56px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));gap:10px}
+#vHow .wrap{display:flex;flex-direction:column;justify-content:center;padding:calc(56px + env(safe-area-inset-top)) 16px calc(16px + calc(env(safe-area-inset-bottom) + var(--inapp-bot,0px)));gap:10px}
 .menuPaper{background:#f8f1e1;padding:16px 16px 14px;box-shadow:0 8px 20px rgba(0,0,0,.5);font-size:15px;line-height:1.6;color:var(--ink);max-height:100%;overflow:hidden;display:flex;flex-direction:column;gap:6px}
 .menuPaper h2{font-family:var(--brush);font-weight:400;font-size:26px;color:var(--red)}
 .menuPaper ol{padding-left:1.3em}
@@ -179,7 +179,7 @@ input{font-family:inherit;-webkit-user-select:text;user-select:text}
 
 /* お開き（伝票） */
 #vEnd{z-index:20;background:rgba(14,8,5,.8)}
-#vEnd .wrap{display:flex;flex-direction:column;align-items:center;gap:8px;padding:calc(58px + env(safe-area-inset-top)) 12px calc(10px + env(safe-area-inset-bottom))}
+#vEnd .wrap{display:flex;flex-direction:column;align-items:center;gap:8px;padding:calc(58px + env(safe-area-inset-top)) 12px calc(10px + calc(env(safe-area-inset-bottom) + var(--inapp-bot,0px)))}
 #billBox{flex:1;min-height:0;width:100%;display:flex;justify-content:center;align-items:center}
 #bill{position:relative;width:min(100%,380px);max-height:100%;background:#fbf7ee;color:var(--ink);font-family:var(--hand);padding:16px 16px 14px;box-shadow:0 10px 26px rgba(0,0,0,.55);transform:rotate(-1.2deg);overflow:hidden;display:flex;flex-direction:column;gap:5px;animation:billIn .5s ease-out}
 @keyframes billIn{0%{transform:translateY(40%) rotate(4deg);opacity:0}100%{transform:rotate(-1.2deg);opacity:1}}
@@ -307,6 +307,6 @@ input{font-family:inherit;-webkit-user-select:text;user-select:text}
 <script src="data.js?v=1"></script>
 <script src="judge.js?v=1"></script>
 <script src="game.js?v=1"></script>
-<script src="support.js?v=1" data-ja="生ビール" data-en="a beer"></script>
+<script src="support.js?v=2" data-ja="生ビール" data-en="a beer"></script>
 </body>
 </html>
