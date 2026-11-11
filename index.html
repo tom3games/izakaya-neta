@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<script id="ghMove">if(location.hostname==='tom3games.github.io'){location.replace('https://tom3games.com/play/izakaya-neta/'+location.search+location.hash)}</script>
+<link rel="canonical" href="https://tom3games.com/play/izakaya-neta/">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>飲み会の沈黙を埋めろ｜打った話でウケるか滑るか決まる居酒屋ゲーム</title>
+<meta name="description" content="飲み会で会話が途切れたら、あなたが話のネタを打つ。部長・後輩・元カノ、席の顔ぶれと時間と酔い具合で、ウケるか滑るかドン引きか。2回滑ったらお開き。最後に受けた話と滑った話が伝票になる。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="飲み会の沈黙を埋めろ">
+<meta property="og:description" content="会話が途切れたら、あなたがネタを打つ。部長の前の下ネタ、元カノの前の恋バナ。2回滑ったらお開き。">
+<meta property="og:image" content="https://tom3games.com/play/izakaya-neta/og.png">
+<meta property="og:url" content="https://tom3games.com/play/izakaya-neta/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#1c120c">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Yuji+Boku&family=Zen+Kurenaido&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="img/bg.webp">
+<style>
+[hidden]{display:none!important}
+:root{--ink:#2a1a10;--paper:#f6efe0;--red:#b8322a;--red2:#7e1f19;--wood:#3b2516;--amber:#f2b25c;--night:#1c120c;--cold:#5b7a96;
+  --brush:"Yuji Boku","Hiragino Mincho ProN","Yu Mincho",serif;--hand:"Zen Kurenaido","Hiragino Maru Gothic ProN",sans-serif;--sans:"Hiragino Sans","Noto Sans JP",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%;background:var(--night);height:100%;overflow:hidden}
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;font-family:var(--sans);color:var(--ink);overflow:hidden;height:100%;background:transparent;position:fixed;inset:0}
+button{font-family:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+input{font-family:inherit;-webkit-user-select:text;user-select:text}
+#app{position:fixed;left:0;right:0;top:0;height:var(--vh,100svh);overflow:hidden}
+.view{position:absolute;inset:0;overflow:hidden}
+.wrap{position:relative;height:100%;max-width:520px;margin:0 auto}
+#boot-err{position:fixed;inset:auto 8px 8px 8px;z-index:99;background:#fff;color:#b00;font:12px/1.4 monospace;white-space:pre-wrap;padding:10px;border-radius:8px}
+
+/* 読み込み（提灯がゆれる） */
+#loading{position:fixed;inset:0;z-index:90;background:var(--night);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .35s}
+#loading svg{width:70px;height:112px;transform-origin:50% 0;animation:sway 1.6s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+#loading p{font-family:var(--hand);font-size:16px;color:#f3dfbf;letter-spacing:.08em}
+#loadBar{width:150px;height:3px;background:rgba(255,255,255,.12);overflow:hidden}
+#loadBar i{display:block;height:100%;width:0;background:var(--amber);transition:width .2s}
+
+/* 右上の小さいボタン */
+#corner{position:absolute;top:max(8px,env(safe-area-inset-top));right:8px;z-index:60;display:flex;gap:6px}
+#corner button{min-width:44px;height:44px;border-radius:22px;background:rgba(20,12,8,.6);color:#f3dfbf;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 11px}
+#corner svg{width:20px;height:20px;fill:#f3dfbf}
+
+/* 店の中（背景・席の人・卓の手前） */
+#scene{position:absolute;left:0;right:0;top:0;bottom:var(--barH,0px);overflow:hidden;background:#2a180d}
+.bgLayer{position:absolute;inset:0;background:url(img/bg.webp) center bottom/cover no-repeat}
+#tableFront{clip-path:inset(var(--ty,78%) 0 0 0);z-index:20;pointer-events:none}
+#warm{position:absolute;inset:0;z-index:21;pointer-events:none;background:radial-gradient(120% 70% at 12% 8%,rgba(255,140,60,.25),transparent 60%);mix-blend-mode:screen;transition:opacity 1s}
+#chill{position:absolute;inset:0;z-index:22;pointer-events:none;background:rgba(40,70,110,.55);mix-blend-mode:multiply;opacity:0;transition:opacity .6s}
+/* #seats は filter（酔い）で包むので、場面いっぱいの箱にしておく（filter のかかった箱が人の位置の基準になる） */
+#seats{position:absolute;inset:0}
+#tags{position:absolute;inset:0;z-index:24;pointer-events:none}
+.person{position:absolute;bottom:0;z-index:5;transform-origin:50% 100%;transition:left .6s ease,opacity .6s,transform .5s ease}
+.person img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:50% 100%;opacity:0;transition:opacity .12s;-webkit-mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent)}
+.person img.on{opacity:1}
+.person.enter{animation:enter .7s ease-out}
+@keyframes enter{0%{transform:translateX(40%) scale(.9);opacity:0}100%{transform:none;opacity:1}}
+.person.bob{animation:bob .9s ease-in-out 2}
+@keyframes bob{50%{transform:translateY(-2.5%) rotate(-1deg)}}
+.person.lean{transform:translateY(1.5%) scale(.98)}
+.person,.person img{pointer-events:none}
+.person .hit{position:absolute;left:24%;right:24%;top:5%;bottom:34%;z-index:2;border-radius:40%;pointer-events:auto}
+/* 卓の上の物 */
+.tag{position:absolute;z-index:24;transform:translateX(-50%) rotate(var(--r,0deg));background:linear-gradient(#fbf4e3,#efe2c4);color:var(--ink);font-family:var(--hand);font-size:13px;line-height:1;padding:5px 8px 6px;border-top:3px solid var(--red);box-shadow:0 2px 3px rgba(0,0,0,.45);white-space:nowrap;pointer-events:auto;min-height:24px}
+#slip{position:absolute;z-index:25;left:10px;transform:rotate(-4deg);width:122px;background:#fbf7ee;box-shadow:0 3px 6px rgba(0,0,0,.5);padding:6px 8px 8px;font-family:var(--hand);color:var(--ink)}
+#slip::before{content:"";position:absolute;left:0;right:0;top:-5px;height:6px;background:radial-gradient(circle at 4px 0,transparent 3px,#fbf7ee 3.5px) 0 0/8px 6px repeat-x}
+#slip .sh{display:flex;justify-content:space-between;font-size:11px;color:#6b5a48;border-bottom:1px solid #d9cdb6;padding-bottom:2px}
+#slip .row{display:flex;align-items:center;gap:4px;margin-top:4px;font-size:13px}
+#slip .row b{font-weight:400;font-size:11px;color:#6b5a48;width:4.2em;flex:none;white-space:nowrap}
+#tally{display:flex;flex-wrap:wrap;gap:1px 3px;min-height:20px;align-items:center}
+#tally svg{width:16px;height:16px}
+#tallyN{font-size:12px;color:#6b5a48}
+#miss{display:flex;gap:5px}
+#miss i{width:17px;height:17px;border:1.5px solid #8a7a66;border-radius:50%;display:block;position:relative}
+#miss i.on{border-color:var(--red)}
+#miss i.on::after{content:"";position:absolute;inset:1px;background:linear-gradient(45deg,transparent 44%,var(--red) 44% 56%,transparent 56%),linear-gradient(-45deg,transparent 44%,var(--red) 44% 56%,transparent 56%)}
+#nabe{position:absolute;z-index:25;right:12px;width:92px;height:84px;pointer-events:none}
+#nabe svg{width:100%;height:100%;overflow:visible}
+#flame{transform-origin:46px 70px;transition:transform .8s ease}
+#flame.flick{animation:flick .18s steps(2) infinite}
+@keyframes flick{50%{opacity:.75}}
+#clock{position:absolute;z-index:30;left:10px;top:max(10px,env(safe-area-inset-top));background:#20140c;color:#f3dfbf;font-family:var(--hand);font-size:15px;padding:6px 10px;border:1px solid #5a3d26;box-shadow:0 2px 4px rgba(0,0,0,.4)}
+#clock small{font-size:11px;color:#c9ab84;margin-left:6px}
+
+/* 一言・判定・お知らせ */
+.bub{position:absolute;z-index:40;max-width:min(76%,330px);background:#fffaf0;border:2px solid var(--ink);border-radius:14px;padding:7px 12px 8px;font-size:16px;font-weight:700;line-height:1.35;color:var(--ink);pointer-events:none;opacity:0;transition:opacity .15s;text-wrap:balance;line-break:strict;word-break:normal;overflow-wrap:anywhere}
+.bub.on{opacity:1}
+.bub::after{content:"";position:absolute;left:var(--ax,50%);bottom:-9px;width:14px;height:14px;background:#fffaf0;border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:translateX(-50%) rotate(45deg)}
+.bub.up::after{bottom:auto;top:-9px;transform:translateX(-50%) rotate(225deg)}
+#mine{background:#20140c;color:#fff4dd;border-color:#f3dfbf}
+#mine::after{background:#20140c;border-color:#f3dfbf}
+#narr{position:absolute;z-index:40;left:16px;right:16px;text-align:center;font-family:var(--hand);font-size:17px;color:#fbe9cc;text-shadow:0 1px 3px #000,0 0 10px rgba(0,0,0,.8);pointer-events:none;opacity:0;transition:opacity .3s}
+#narr.on{opacity:1}
+#stamp{position:absolute;z-index:45;left:50%;pointer-events:none;font-family:var(--brush);font-size:min(17vw,82px);line-height:1;color:var(--red);border:5px solid currentColor;border-radius:10px;padding:6px 14px 10px;transform:translate(-50%,-50%) rotate(-9deg);opacity:0;background:rgba(251,247,238,.82);white-space:nowrap}
+#stamp.on{animation:stampIn .32s cubic-bezier(.2,1.4,.5,1) forwards}
+@keyframes stampIn{0%{opacity:0;transform:translate(-50%,-50%) rotate(-9deg) scale(2.2)}100%{opacity:1;transform:translate(-50%,-50%) rotate(-9deg) scale(1)}}
+#stamp.v-big{color:#c42a1f}#stamp.v-good{color:#c06a15;font-size:min(14vw,66px)}#stamp.v-meh{color:#6b6359;font-size:min(12vw,56px)}#stamp.v-flop{color:#3e6488}#stamp.v-cringe{color:#2d2a33}
+#banner{position:absolute;z-index:46;left:0;right:0;padding:12px 18px;background:rgba(20,12,8,.88);color:#fbe9cc;font-family:var(--hand);font-size:18px;text-align:center;border-top:1px solid #8a6440;border-bottom:1px solid #8a6440;transform:translateX(-105%);transition:transform .35s ease;pointer-events:none}
+#banner.on{transform:none}
+#tenin{position:absolute;z-index:23;bottom:0;right:-60%;width:56%;aspect-ratio:2/3;transition:right .45s ease;pointer-events:none}
+#tenin img{width:100%;height:100%;object-fit:contain;object-position:50% 100%}
+#tenin.on{right:-8%}
+#finger{position:absolute;z-index:70;width:44px;height:44px;pointer-events:none;animation:poke .9s ease-in-out infinite}
+@keyframes poke{50%{transform:translate(5px,8px) scale(.92)}}
+
+/* 打つところ */
+#bar{position:absolute;left:0;right:0;bottom:0;z-index:50;background:#20140c;border-top:1px solid #4d331f;padding:8px 10px calc(8px + env(safe-area-inset-bottom))}
+#bar .in{display:flex;gap:8px;max-width:520px;margin:0 auto}
+#neta{flex:1;min-width:0;height:48px;border-radius:10px;border:2px solid #6b4a2e;background:#fbf4e6;color:var(--ink);font-size:16px;padding:0 12px;outline:none}
+#neta:focus{border-color:var(--amber)}
+#neta::placeholder{color:#9a8670}
+#neta:disabled{background:#3a2a1e;color:#a08a70;border-color:#3a2a1e}
+#bSay{flex:none;min-width:84px;height:48px;border-radius:10px;background:var(--red);color:#fff3e2;font-weight:800;font-size:17px;box-shadow:0 4px 0 var(--red2);letter-spacing:.06em}
+#bSay:active{transform:translateY(3px);box-shadow:0 1px 0 var(--red2)}
+#bSay:disabled{background:#5a3a2a;box-shadow:0 4px 0 #3a251a;color:#b9a088}
+#count{position:absolute;right:104px;top:-18px;font-size:11px;color:#c9ab84;font-family:var(--hand)}
+
+/* タイトル（のれん） */
+#vTitle{z-index:10}
+#vGame{z-index:5}
+#vGame.meeting #bar{visibility:hidden}
+#tPeople{position:absolute;left:0;right:0;bottom:0;height:62%;pointer-events:none}
+#tPeople img{position:absolute;bottom:0;height:min(100%,56vh);width:auto;filter:brightness(.62) saturate(.9)}
+#tPeople img:nth-child(1){left:-14%}#tPeople img:nth-child(2){left:50%;transform:translateX(-50%);height:min(88%,58vh);bottom:4%;filter:brightness(.5) saturate(.9)}#tPeople img:nth-child(3){right:-14%}
+#tShade{position:absolute;left:0;right:0;bottom:0;height:50%;background:linear-gradient(transparent,rgba(20,12,8,.9) 70%);pointer-events:none}
+#vTitle .bgLayer{filter:blur(2px) brightness(.55)}
+#noren{position:absolute;left:0;right:0;top:0;height:min(48%,400px);display:flex;gap:4px;padding:0 4px;filter:drop-shadow(0 8px 10px rgba(0,0,0,.5))}
+#noren div{flex:1;background:linear-gradient(#25304f,#1b2440);border-radius:0 0 4px 4px;position:relative;transform-origin:50% 0;animation:wave 5s ease-in-out infinite}
+#noren div:nth-child(2){animation-delay:-1.6s}#noren div:nth-child(3){animation-delay:-3.1s}
+@keyframes wave{50%{transform:skewX(1.2deg)}}
+#noren::before{content:"";position:absolute;left:0;right:0;top:0;height:14px;background:#5a3d26;z-index:2}
+#tName{position:absolute;left:0;right:0;top:calc(62px + env(safe-area-inset-top));height:calc(min(48%,400px) - 30px);display:flex;flex-direction:row-reverse;justify-content:center;gap:2px;z-index:3;pointer-events:none}
+#tName span{writing-mode:vertical-rl;font-family:var(--brush);color:#f6efe0;font-size:min(12vw,6.2svh,62px);line-height:1.05;letter-spacing:.04em;white-space:nowrap}
+#tName span:nth-child(2){margin-top:min(7vw,4.2svh,40px)}
+#tName.en{flex-direction:column;align-items:center;justify-content:center}
+#tName.en span{writing-mode:horizontal-tb;font-family:var(--brush);font-size:min(12vw,54px);margin:0}
+#tLow{position:absolute;left:0;right:0;bottom:0;top:min(48%,400px);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:12px;padding:16px 16px calc(22px + env(safe-area-inset-bottom))}
+#tSub{font-family:var(--hand);font-size:18px;color:#fff3dc;text-shadow:0 1px 3px #000,0 0 12px #000;text-align:center}
+#tBest{font-family:var(--hand);font-size:14px;color:#d9be98;min-height:18px}
+.big{width:min(80vw,300px);min-height:58px;border-radius:8px;background:var(--red);color:#fff3e2;font-weight:800;font-size:20px;letter-spacing:.12em;box-shadow:0 5px 0 var(--red2),0 10px 22px rgba(0,0,0,.45)}
+.big:active{transform:translateY(3px);box-shadow:0 2px 0 var(--red2)}
+.tLinks{display:flex;gap:20px}
+.tLinks button{min-height:44px;padding:0 18px;color:#fff3dc;font-family:var(--hand);font-size:17px;text-shadow:0 1px 3px #000,0 0 10px #000;border:1px solid rgba(243,223,191,.45);border-radius:22px;background:rgba(20,12,8,.45)}
+
+/* 今夜の顔ぶれ（箸袋のカード） */
+#vMeet{z-index:12;background:rgba(18,10,6,.86)}
+#vMeet .wrap{display:flex;flex-direction:column;align-items:center;padding:calc(64px + env(safe-area-inset-top)) 14px calc(18px + env(safe-area-inset-bottom));gap:10px}
+#meetName{font-family:var(--brush);font-size:30px;color:#f6efe0}
+#meetSub{font-family:var(--hand);font-size:14px;color:#d9be98;margin-top:-6px}
+#cards{flex:1;min-height:0;width:100%;display:flex;flex-direction:column;justify-content:center;gap:9px}
+.card{display:flex;align-items:center;gap:10px;background:linear-gradient(90deg,#fbf4e3,#f1e4c8);padding:6px 12px 6px 6px;border-left:5px solid var(--red);box-shadow:0 3px 6px rgba(0,0,0,.4);transform:rotate(var(--r,0deg))}
+.card .ph{width:min(19vw,74px);aspect-ratio:1;flex:none;overflow:hidden;background:#3a2516;border-radius:3px}
+.card .ph img{width:100%;height:auto;margin-top:-4%;display:block}
+.card .tx{flex:1;min-width:0;font-family:var(--hand);color:var(--ink)}
+.card .rel{font-size:19px;line-height:1.2}
+.card .lk{font-size:14px;margin-top:3px;color:#5a4636}
+.card .lk em{font-style:normal;color:#9b2a20}
+.card.late .ph{display:flex;align-items:center;justify-content:center;font-family:var(--brush);font-size:34px;color:#c9ab84}
+#bKanpai{flex:none}
+
+/* 人のカード（遊び中に人を押した時） */
+#peek{position:absolute;z-index:80;left:50%;top:40%;transform:translate(-50%,-50%);width:min(86vw,330px)}
+#peek .card{transform:rotate(-1.5deg)}
+
+/* 遊び方 */
+#vHow{z-index:85;background:rgba(14,8,5,.9)}
+#vHow .wrap{display:flex;flex-direction:column;justify-content:center;padding:calc(56px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));gap:10px}
+.menuPaper{background:#f8f1e1;padding:16px 16px 14px;box-shadow:0 8px 20px rgba(0,0,0,.5);font-size:15px;line-height:1.6;color:var(--ink);max-height:100%;overflow:hidden;display:flex;flex-direction:column;gap:6px}
+.menuPaper h2{font-family:var(--brush);font-weight:400;font-size:26px;color:var(--red)}
+.menuPaper ol{padding-left:1.3em}
+.menuPaper .more{font-size:13px;color:#5a4636}
+.menuPaper .priv{font-size:13px;background:#efe3c9;padding:6px 8px;border-left:3px solid #6b4a2e}
+.menuPaper .cr{font-size:11px;color:#7a6650}
+.menuPaper .cr a{color:#5a4636}
+#bHowClose{align-self:center;min-height:46px;padding:0 30px;border:1.5px solid #f3dfbf;border-radius:8px;color:#f3dfbf;font-size:16px;font-weight:700}
+
+/* お開き（伝票） */
+#vEnd{z-index:20;background:rgba(14,8,5,.8)}
+#vEnd .wrap{display:flex;flex-direction:column;align-items:center;gap:8px;padding:calc(58px + env(safe-area-inset-top)) 12px calc(10px + env(safe-area-inset-bottom))}
+#billBox{flex:1;min-height:0;width:100%;display:flex;justify-content:center;align-items:center}
+#bill{position:relative;width:min(100%,380px);max-height:100%;background:#fbf7ee;color:var(--ink);font-family:var(--hand);padding:16px 16px 14px;box-shadow:0 10px 26px rgba(0,0,0,.55);transform:rotate(-1.2deg);overflow:hidden;display:flex;flex-direction:column;gap:5px;animation:billIn .5s ease-out}
+@keyframes billIn{0%{transform:translateY(40%) rotate(4deg);opacity:0}100%{transform:rotate(-1.2deg);opacity:1}}
+#bill::before{content:"";position:absolute;left:0;right:0;top:0;height:7px;background:repeating-linear-gradient(90deg,#c9b99c 0 2px,transparent 2px 7px);opacity:.5}
+#bill h3{font-family:var(--brush);font-weight:400;font-size:30px;text-align:center;letter-spacing:.3em;color:var(--ink)}
+#bill .meta{display:flex;justify-content:space-between;font-size:13px;color:#6b5a48;border-bottom:1.5px dashed #b9a88c;padding-bottom:4px}
+#bill .big1{display:flex;justify-content:space-between;align-items:baseline;font-size:17px}
+#bill .big1 b{font-weight:400;font-size:32px;color:var(--red)}
+#bill .sec{font-size:12px;color:#6b5a48;margin-top:2px}
+#bill .it{display:flex;gap:6px;font-size:14px;line-height:1.3;align-items:baseline}
+#bill .it span{flex:1;min-width:0;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+#bill .it i{font-style:normal;font-size:12px;flex:none;color:var(--red)}
+#bill .it.bad i{color:#2f5374}
+#bill .nickRow{display:flex;align-items:center;gap:8px;border-top:1.5px dashed #b9a88c;padding-top:6px;margin-top:2px}
+#bill .nick{flex:1;min-width:0;text-align:center}
+#bill .nick small{display:block;font-size:12px;color:#6b5a48}
+#bill .nick b{font-weight:400;font-family:var(--brush);font-size:28px;line-height:1.2}
+#bill .pay{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;border-top:1.5px solid #b9a88c;padding-top:5px}
+#bill .pay b{font-weight:400;font-size:24px}
+#bill .inv{flex:none;font-family:var(--brush);font-size:19px;color:var(--red);border:2.5px solid currentColor;border-radius:50%;width:84px;height:84px;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.1;transform:rotate(-14deg);opacity:.9;background:rgba(251,247,238,.6);font-size:16px;padding:6px}
+#bill .inv.no{color:#3e6488}
+.endBtns{flex:none;display:flex;flex-direction:column;gap:6px;width:min(100%,380px);align-items:center}
+.endBtns .row{display:flex;gap:6px;width:100%}
+.endBtns .row button{flex:1;min-height:44px;border-radius:8px;font-weight:700;font-size:14px;background:rgba(32,20,12,.85);color:#f3dfbf;border:1px solid #8a6440}
+#bAgain{width:100%}
+#endFoot{display:flex;flex-direction:column;align-items:center}
+@media (max-height:700px){
+  #bill{padding:11px 13px 10px;gap:3px}#bill h3{font-size:24px}#bill .big1 b{font-size:26px}#bill .nick b{font-size:23px}#bill .it{font-size:13px}#bill .inv{width:70px;height:70px;font-size:16px}
+  .big{min-height:50px;font-size:18px}
+  #vEnd .wrap{gap:5px;padding-top:calc(54px + env(safe-area-inset-top))}
+  .card .ph{width:60px}.card .rel{font-size:17px}.card .lk{font-size:13px}
+  #meetName{font-size:25px}
+  .menuPaper{font-size:14px;line-height:1.5;padding:12px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="loading"><svg viewBox="0 0 70 112"><line x1="35" y1="0" x2="35" y2="14" stroke="#7a5534" stroke-width="2"/><rect x="24" y="12" width="22" height="6" fill="#2a1a10"/><ellipse cx="35" cy="56" rx="30" ry="38" fill="#c0392b"/><g stroke="#8e2a1f" stroke-width="1.5" fill="none"><ellipse cx="35" cy="56" rx="30" ry="30"/><ellipse cx="35" cy="56" rx="30" ry="20"/><ellipse cx="35" cy="56" rx="30" ry="10"/></g><ellipse cx="35" cy="56" rx="14" ry="24" fill="#ffb067" opacity=".55"/><rect x="24" y="92" width="22" height="7" fill="#2a1a10"/></svg><p id="loadTx">お席にご案内しています</p><div id="loadBar"><i></i></div></div>
+
+  <section id="vTitle" class="view">
+    <div class="bgLayer"></div>
+    <div id="tPeople"><img alt="" src="img/senpai_h.webp"><img alt="" src="img/doki_h.webp"><img alt="" src="img/kohai_h.webp"></div><div id="tShade"></div>
+    <div id="noren"><div></div><div></div><div></div></div>
+    <h1 id="tName"><span>飲み会の</span><span>沈黙を埋めろ</span></h1>
+    <div id="tLow">
+      <p id="tSub">打ったネタで、場の空気が決まる</p>
+      <p id="tBest"></p>
+      <button id="bStart" class="big">入店する</button>
+      <div class="tLinks"><button id="bHow">遊び方</button></div>
+    </div>
+  </section>
+
+  <section id="vGame" class="view" hidden>
+    <div id="scene">
+      <div class="bgLayer" id="bgBack"></div>
+      <div id="seats"></div>
+      <div class="bgLayer" id="tableFront"></div>
+      <div id="warm"></div><div id="chill"></div>
+      <div id="tags"></div>
+      <div id="slip"><div class="sh"><span id="slipT">卓3</span><span id="slipTime">19:00</span></div>
+        <div class="row"><b id="lbBeer">生</b><div id="tally"></div></div>
+        <div class="row"><b id="lbMiss">気まずい</b><div id="miss"><i></i><i></i></div></div></div>
+      <div id="nabe"><svg viewBox="0 0 92 84"><g id="flame"><path d="M46 70c-12-4-16-14-10-26 2 6 5 8 7 8-2-10 2-20 9-26-1 9 4 14 7 20 3 6 1 18-13 24z" fill="#ff8a2a"/><path d="M47 69c-6-3-8-9-4-15 2 4 4 5 5 5 0-6 2-10 5-13 0 6 3 9 3 13 1 5-3 9-9 10z" fill="#ffd36b"/></g><ellipse cx="46" cy="74" rx="22" ry="5" fill="#3a3a3a"/><path d="M14 44h64l-5 20H19z" fill="#4a4038"/><ellipse cx="46" cy="44" rx="32" ry="7" fill="#5c5046"/><ellipse cx="46" cy="44" rx="27" ry="5" fill="#c9884a"/><path d="M8 40h8M76 40h8" stroke="#2a2420" stroke-width="5" stroke-linecap="round"/></svg></div>
+      <div id="tenin"><img alt="" src="" data-src="img/tenin.webp"></div>
+      <div id="clock"><span id="clockT">19:00</span><small id="phaseT">一次会</small></div>
+      <div id="narr"></div>
+      <div class="bub" id="bub"></div>
+      <div class="bub" id="mine"></div>
+      <div id="stamp"></div>
+      <div id="banner"></div>
+    </div>
+    <form id="bar" autocomplete="off" onsubmit="return false"><div class="in"><input id="neta" type="text" enterkeyhint="send" maxlength="60" autocomplete="off" autocorrect="off" spellcheck="false"><button id="bSay" type="button">話す</button></div></form>
+    <div id="peek" hidden></div>
+  </section>
+
+  <section id="vMeet" class="view" hidden><div class="wrap">
+    <p id="meetName"></p><p id="meetSub"></p>
+    <div id="cards"></div>
+    <button id="bKanpai" class="big">乾杯</button>
+  </div></section>
+
+  <section id="vEnd" class="view" hidden><div class="wrap">
+    <div id="billBox"><div id="bill"></div></div>
+    <div class="endBtns">
+      <button id="bAgain" class="big">もう一軒</button>
+      <div class="row"><button id="bSave">伝票を保存</button><button id="bPost">Xでポスト</button></div>
+      <div id="endFoot" data-home-slot></div>
+    </div>
+  </div></section>
+
+  <section id="vHow" class="view" hidden><div class="wrap">
+    <div class="menuPaper"><h2 id="howH">遊び方</h2><ol id="howOl"></ol><p class="more" id="howMore"></p><p class="priv" id="howPriv"></p>
+      <p class="cr">笑い声: lonemonk (freesound.org, CC BY 3.0) ／ そのほかの音: CC0 ／ <a href="privacy.html" id="privLink">プライバシー</a></p></div>
+    <button id="bHowClose">閉じる</button>
+  </div></section>
+
+  <div id="corner"><button id="bMute" aria-label="sound"><svg viewBox="0 0 24 24"><path id="mIcon" d="M4 9v6h4l5 4V5L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/></svg></button><button id="bLang">EN</button><button id="bHelp" aria-label="help">?</button></div>
+</div>
+<script>
+(function(){
+  var opt={passive:false};
+  ['gesturestart','gesturechange','gestureend'].forEach(function(n){document.addEventListener(n,function(e){e.preventDefault()},opt)});
+  document.addEventListener('touchmove',function(e){if(e.touches&&e.touches.length>1)e.preventDefault()},opt);
+  var last=0;document.addEventListener('touchend',function(e){var n=Date.now();if(n-last<300&&!(e.target.closest&&e.target.closest('button,a,input')))e.preventDefault();last=n},opt);
+  document.addEventListener('dblclick',function(e){e.preventDefault()},opt);
+  window.addEventListener('wheel',function(e){if(e.ctrlKey)e.preventDefault()},opt);
+  window.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&['+','-','=','0',';'].indexOf(e.key)>=0)e.preventDefault()});
+})();
+// 起動失敗の保険。JS が動いたか（__jsUp）で判定し、読み込み中は失敗と出さない
+(function(){
+  var errs=[];
+  window.addEventListener('error',function(e){errs.push((e.message||'error')+' @'+(e.filename||'')+':'+(e.lineno||''))});
+  window.addEventListener('unhandledrejection',function(e){errs.push('reject: '+(e.reason&&e.reason.message||e.reason))});
+  setTimeout(function(){
+    if(window.__jsUp) return;
+    var d=document.createElement('div');d.id='boot-err';
+    d.textContent='起動できませんでした / failed to start\n'+(errs.join('\n')||'(no error captured)')+'\n'+navigator.userAgent;
+    document.body.appendChild(d);
+  },6000);
+})();
+</script>
+<script src="tm.js?v=1" data-game="izakaya-neta"></script>
+<script src="sfx.js?v=1"></script>
+<script src="data.js?v=1"></script>
+<script src="judge.js?v=1"></script>
+<script src="game.js?v=1"></script>
+<script src="support.js?v=1" data-ja="生ビール" data-en="a beer"></script>
+</body>
+</html>
